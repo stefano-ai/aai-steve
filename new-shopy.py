@@ -30,6 +30,38 @@ def get_shopify_products():
     headers = {
         "X-Shopify-Access-Token": "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"
     }
+    page_info = None
+    products = []
+    
+    while True:
+        params = {"limit": 250}  # Get maximum number of products per request
+        if page_info:
+            params["page_info"] = page_info
+
+        response = requests.get(url, headers=headers, params=params)
+        data = response.json()
+        products.extend(data.get('products', []))
+        
+        # Check if there is a link header for the next page
+        link_header = response.headers.get("Link")
+        if link_header:
+            # Get the next page's page_info
+            links = link_header.split(", ")
+            next_link = [link for link in links if "rel=\"next\"" in link]
+            if next_link:
+                page_info = next_link[0].split("; ")[0].strip("<>").split("page_info=")[1]
+            else:
+                break
+        else:
+            break
+
+    print("Fetched products from Shopify: ", len(products))  # Debugging
+    return [f'{product["title"]} {product["body_html"]} {product["variants"][0]["price"]}' for product in products]
+
+    url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
+    headers = {
+        "X-Shopify-Access-Token": "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"
+    }
     response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
     print("Fetched products from Shopify: ", len(products))  # Debugging
