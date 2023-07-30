@@ -82,7 +82,7 @@ vectordb = Chroma.from_documents(documents=[Document(text) for text in texts],
 vectordb.persist()
 
 retriever = vectordb.as_retriever(search_kwargs={"k": 3})
-llm = ChatOpenAI(model_name='gpt-4', temperature=0.6, max_tokens=60)
+llm = ChatOpenAI(model_name='gpt-4', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
