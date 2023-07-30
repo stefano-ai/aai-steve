@@ -16,7 +16,9 @@ api_key = os.getenv('OPENAI_API_KEY')
 persist_directory = "./storage"
 pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 
-documents = []
+# Initialize two separate document lists
+shopify_documents = []
+pdf_documents = []
 
 def get_shopify_products():
     url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
@@ -29,8 +31,8 @@ def get_shopify_products():
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
 # Get products from Shopify
-documents.extend(get_shopify_products())
-print("Documents after adding Shopify products: ", len(documents))  # Debugging
+shopify_documents.extend(get_shopify_products())
+print("Documents after adding Shopify products: ", len(shopify_documents))  # Debugging
 
 # Iterate over every file in the directory
 for filename in os.listdir(pdf_directory):
@@ -38,13 +40,18 @@ for filename in os.listdir(pdf_directory):
         pdf_path = os.path.join(pdf_directory, filename)  # Get the full path to the file
         loader = PyMuPDFLoader(pdf_path)
         document = loader.load()  # Load the document
-        documents.extend(document)  # Add the document's content to the list
+        pdf_documents.extend(document)  # Add the document's content to the list
         print(f"Added document: {filename}")  # Debugging
 
-print("Total documents: ", len(documents))  # Debugging
+print("Total documents: ", len(shopify_documents) + len(pdf_documents))  # Debugging
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=10)
-texts = text_splitter.split_documents(documents)
+
+# Split Shopify and PDF documents separately
+shopify_texts = text_splitter.split_documents(shopify_documents)
+pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_documents)]
+texts = shopify_texts + pdf_texts
+
 print("Texts after splitting: ", len(texts))  # Debugging
 
 embeddings = OpenAIEmbeddings()
