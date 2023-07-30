@@ -53,8 +53,10 @@ def get_shopify_products():
             break
 
     print("Fetched products from Shopify: ", len(products))
-    return [f'{product["title"]} {product["body_html"]} {product["variants"][0]["price"]}' for product in products]
-
+    return [
+    f'{product["title"]} {product["body_html"]} {product["product_type"]} {", ".join(product["tags"].split(", "))} {", ".join([variant["option1"] for variant in product["variants"]])} {product["variants"][0]["price"]}'
+    for product in products
+]
 shopify_documents.extend(get_shopify_products())
 print("Documents after adding Shopify products: ", len(shopify_documents))
 
