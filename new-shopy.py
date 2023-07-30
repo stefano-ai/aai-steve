@@ -49,7 +49,7 @@ texts = shopify_documents + pdf_texts  # Directly append Shopify descriptions to
 print("Texts after splitting: ", len(texts))  # Debugging
 
 embeddings = OpenAIEmbeddings()
-vectordb = Chroma.from_documents(documents=texts, 
+vectordb = Chroma.from_documents(documents=[{'page_content': text} for text in texts], 
                                  embedding=embeddings,
                                  persist_directory=persist_directory)
 vectordb.persist()
