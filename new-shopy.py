@@ -1,5 +1,7 @@
 import os
 import requests
+import langchain
+print(dir(langchain))
 from flask import Flask, request
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
