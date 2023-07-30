@@ -19,7 +19,7 @@ pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 documents = []
 
 def get_shopify_products():
-    url = "https://nuvitababy.myshopify.com/admin/api/2023-07/products.json"
+    url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
     headers = {
         "X-Shopify-Access-Token": "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"
     }
