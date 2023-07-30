@@ -16,7 +16,6 @@ api_key = os.getenv('OPENAI_API_KEY')
 persist_directory = "./storage"
 pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 
-# Initialize two separate document lists
 shopify_documents = []
 pdf_documents = []
 
@@ -30,11 +29,9 @@ def get_shopify_products():
     print("Fetched products from Shopify: ", len(products))  # Debugging
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
-# Get products from Shopify
 shopify_documents.extend(get_shopify_products())
 print("Documents after adding Shopify products: ", len(shopify_documents))  # Debugging
 
-# Iterate over every file in the directory
 for filename in os.listdir(pdf_directory):
     if filename.endswith(".pdf"):  # If the file is a PDF
         pdf_path = os.path.join(pdf_directory, filename)  # Get the full path to the file
@@ -46,11 +43,8 @@ for filename in os.listdir(pdf_directory):
 print("Total documents: ", len(shopify_documents) + len(pdf_documents))  # Debugging
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=10)
-
-# Split Shopify and PDF documents separately
-shopify_texts = text_splitter.split_documents(shopify_documents)
 pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_documents)]
-texts = shopify_texts + pdf_texts
+texts = shopify_documents + pdf_texts  # Directly append Shopify descriptions to texts
 
 print("Texts after splitting: ", len(texts))  # Debugging
 
