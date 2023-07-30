@@ -84,8 +84,8 @@ vectordb = Chroma.from_documents(documents=[Document(text) for text in texts],
                                  persist_directory=persist_directory)
 vectordb.persist()
 
-retriever = vectordb.as_retriever(search_kwargs={"k": 3})
-llm = ChatOpenAI(model_name='gpt-4', temperature=1, max_tokens=1000)
+retriever = vectordb.as_retriever(search_kwargs={"k": 10})  # Restituisce i primi 10 documenti più simili
+llm = ChatOpenAI(model_name='gpt-4', temperature=1, max_tokens=2000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
