@@ -25,7 +25,7 @@ class Document:
         self.page_content = page_content
         self.metadata = metadata
 
-ef get_shopify_products():
+def get_shopify_products():
     url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
     headers = {
         "X-Shopify-Access-Token": "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"
