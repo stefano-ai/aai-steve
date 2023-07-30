@@ -30,8 +30,19 @@ def get_shopify_products():
     headers = {
         "X-Shopify-Access-Token": "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"
     }
-    response = requests.get(url, headers=headers)
-    products = response.json().get('products', [])
+    
+    page = 1
+    products = []
+    
+    while True:
+        params = {'limit': 250, 'page': page}  # Shopify allows up to 250 items per page
+        response = requests.get(url, headers=headers, params=params)
+        page_products = response.json().get('products', [])
+        if not page_products:
+            break
+        products.extend(page_products)
+        page += 1
+
     print("Fetched products from Shopify: ", len(products))  # Debugging
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
@@ -94,4 +105,4 @@ def query():
 
 if __name__ == '__main__':
     print("Starting Flask application")  # Debugging
-    app.run(host='0.0.0.0', port=8080)  #
+    app.run(host='0.0.0.0', port=8080)  
