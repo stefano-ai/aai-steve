@@ -1,4 +1,5 @@
 import os
+import requests
 from flask import Flask, request
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -15,6 +16,19 @@ persist_directory = "./storage"
 pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 
 documents = []
+
+def get_shopify_products():
+    url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
+    headers = {
+        "X-Shopify-Access-Token": "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"
+    }
+    response = requests.get(url, headers=headers)
+    products = response.json().get('products', [])
+    # In this case, we are only interested in the product title and description
+    return [f'{product["title"]} {product["body_html"]}' for product in products]
+
+# Get products from Shopify
+documents.extend(get_shopify_products())
 
 # Iterate over every file in the directory
 for filename in os.listdir(pdf_directory):
