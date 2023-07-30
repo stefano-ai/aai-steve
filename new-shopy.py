@@ -7,7 +7,7 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
-from langchain.documents import Document
+from langchain.text import Text
 
 
 app = Flask(__name__)
@@ -20,15 +20,15 @@ pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 documents = []
 
 def get_shopify_products():
-    url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
+    url = "https://nuvitababy.myshopify.com/admin/api/2023-07/products.json"
     headers = {
-        "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"
+        "X-Shopify-Access-Token": "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"
     }
     response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
     # In this case, we are only interested in the product title and description
-    # Create a Document object for each product
-    return [Document(f'{product["title"]} {product["body_html"]}') for product in products]
+    # Create a Text object for each product
+    return [Text(f'{product["title"]} {product["body_html"]}') for product in products]
 
 
 # Get products from Shopify
