@@ -25,25 +25,29 @@ class Document:
         self.page_content = page_content
         self.metadata = metadata
 
-def get_shopify_products():
+ef get_shopify_products():
     url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
     headers = {
         "X-Shopify-Access-Token": "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"
     }
-    
-    page = 1
-    products = []
-    
-    while True:
-        params = {'limit': 250, 'page': page}  # Shopify allows up to 250 items per page
-        response = requests.get(url, headers=headers, params=params)
-        page_products = response.json().get('products', [])
-        if not page_products:
-            break
-        products.extend(page_products)
-        page += 1
-
-    print("Fetched products from Shopify: ", len(products))  # Debugging
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raises a HTTPError if the response status isn't 200
+    except requests.exceptions.HTTPError as errh:
+        print ("HTTP Error:",errh)
+        return []
+    except requests.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+        return []
+    except requests.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+        return []
+    except requests.exceptions.RequestException as err:
+        print ("Something went wrong",err)
+        return []
+      
+    products = response.json().get('products', [])
+    print("Fetched products from Shopify: ", len(products))  
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
 shopify_documents.extend(get_shopify_products())
