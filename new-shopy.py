@@ -25,12 +25,12 @@ def get_shopify_products():
     }
     response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
-    # In this case, we are only interested in the product title and description
-    # Create a string for each product (instead of a Text object)
+    print("Fetched products from Shopify: ", len(products))  # Debugging
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
 # Get products from Shopify
 documents.extend(get_shopify_products())
+print("Documents after adding Shopify products: ", len(documents))  # Debugging
 
 # Iterate over every file in the directory
 for filename in os.listdir(pdf_directory):
@@ -39,9 +39,13 @@ for filename in os.listdir(pdf_directory):
         loader = PyMuPDFLoader(pdf_path)
         document = loader.load()  # Load the document
         documents.extend(document)  # Add the document's content to the list
+        print(f"Added document: {filename}")  # Debugging
+
+print("Total documents: ", len(documents))  # Debugging
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=10)
 texts = text_splitter.split_documents(documents)
+print("Texts after splitting: ", len(texts))  # Debugging
 
 embeddings = OpenAIEmbeddings()
 vectordb = Chroma.from_documents(documents=texts, 
@@ -54,10 +58,10 @@ llm = ChatOpenAI(model_name='gpt-4')  # Change model name to 'gpt-3.5-turbo' if 
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
-
 @app.route('/query', methods=['GET'])
 def query():
-    user_input = request.args.get('input', None) # Fetch the user input from the GET request
+    user_input = request.args.get('input', None)  # Fetch the user input from the GET request
+    print(f"User input: {user_input}")  # Debugging
     if user_input is None:
         return {
             'status': 'error',
@@ -65,13 +69,16 @@ def query():
         }, 400
 
     query = f"###Prompt {user_input}"
+    print(f"Query: {query}")  # Debugging
     try:
         llm_response = qa(query)
+        print(f"LLM response: {llm_response}")  # Debugging
         return {
             'status': 'success',
             'response': llm_response["result"]
         }
     except Exception as err:
+        print(f"Exception occurred: {str(err)}")  # Debugging
         return {
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
@@ -79,4 +86,5 @@ def query():
 
 
 if __name__ == '__main__':
+    print("Starting Flask application")  # Debugging
     app.run(host='0.0.0.0', port=8080)  # Set the host and port to your needs
