@@ -21,8 +21,9 @@ pdf_documents = []
 
 # Creating a simple class that mimics the document object expected by Chroma
 class Document:
-    def __init__(self, page_content):
+    def __init__(self, page_content, metadata={}):
         self.page_content = page_content
+        self.metadata = metadata
 
 def get_shopify_products():
     url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
@@ -93,4 +94,4 @@ def query():
 
 if __name__ == '__main__':
     print("Starting Flask application")  # Debugging
-    app.run(host='0.0.0.0', port=8080)  # Set the host and port to your needs
+    app.run(host='0.0.0.0', port=8080)  #
