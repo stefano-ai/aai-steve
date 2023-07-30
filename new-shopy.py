@@ -19,6 +19,11 @@ pdf_directory = "pdfs/"  # Update this to your specific directory with PDFs
 shopify_documents = []
 pdf_documents = []
 
+# Creating a simple class that mimics the document object expected by Chroma
+class Document:
+    def __init__(self, page_content):
+        self.page_content = page_content
+
 def get_shopify_products():
     url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
     headers = {
@@ -49,7 +54,7 @@ texts = shopify_documents + pdf_texts  # Directly append Shopify descriptions to
 print("Texts after splitting: ", len(texts))  # Debugging
 
 embeddings = OpenAIEmbeddings()
-vectordb = Chroma.from_documents(documents=[{'page_content': text} for text in texts], 
+vectordb = Chroma.from_documents(documents=[Document(text) for text in texts], 
                                  embedding=embeddings,
                                  persist_directory=persist_directory)
 vectordb.persist()
