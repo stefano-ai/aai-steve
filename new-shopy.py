@@ -73,7 +73,7 @@ pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_doc
 texts = shopify_documents + pdf_texts
 
 print("Texts after splitting: ", len(texts))
-print("First 5 texts: ", texts[:5])
+print("First 5 texts: ", texts[:180])
 
 embeddings = OpenAIEmbeddings()
 vectordb = Chroma.from_documents(documents=[Document(text) for text in texts], 
