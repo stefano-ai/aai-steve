@@ -1,7 +1,6 @@
 import os
 import requests
 import langchain
-print(dir(langchain))
 from flask import Flask, request
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -9,8 +8,6 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
-from langchain.text import Text
-
 
 app = Flask(__name__)
 
@@ -29,9 +26,8 @@ def get_shopify_products():
     response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
     # In this case, we are only interested in the product title and description
-    # Create a Text object for each product
-    return [Text(f'{product["title"]} {product["body_html"]}') for product in products]
-
+    # Create a string for each product (instead of a Text object)
+    return [f'{product["title"]} {product["body_html"]}' for product in products]
 
 # Get products from Shopify
 documents.extend(get_shopify_products())
