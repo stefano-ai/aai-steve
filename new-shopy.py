@@ -33,7 +33,7 @@ def get_shopify_products():
     response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
     print("Fetched products from Shopify: ", len(products))  # Debugging
-    return [f'{product["title"]} {product["body_html"] {product["price"]}' for product in products]
+return [f'{product["title"]} {product["body_html"]} {product["price"]}' for product in products]
 
 shopify_documents.extend(get_shopify_products())
 print("Documents after adding Shopify products: ", len(shopify_documents))  # Debugging
