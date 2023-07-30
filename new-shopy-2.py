@@ -1,7 +1,11 @@
 import requests
+import openai
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+
+# Set OpenAI API Key
+openai.api_key = 'YOUR_OPENAI_API_KEY'
 
 # Function to get Shopify products
 def get_shopify_products():
@@ -47,22 +51,20 @@ def query():
             'message': 'No input provided'
         }), 400
 
-    # Searching for user_input in Shopify data
-    results = []
-    for product in shopify_data:
-        if user_input.lower() in product["title"].lower():
-            results.append(product)
+    # Create a text from the Shopify data for the GPT-4 model
+    text_data = "\n".join([f"Product: {product['title']}\nDescription: {product['body_html']}" for product in shopify_data])
 
-    # Return error message if no results found
-    if not results:
-        return jsonify({
-            'status': 'error',
-            'message': 'No matching products found'
-        }), 404
+    # Generate a response using GPT-4
+    response = openai.Completion.create(
+        engine="text-davinci-004",
+        prompt=text_data + "\n\n" + user_input,
+        temperature=0.5,
+        max_tokens=100
+    )
 
     return jsonify({
         'status': 'success',
-        'results': results
+        'response': response.choices[0].text.strip()
     })
 
 if __name__ == '__main__':
