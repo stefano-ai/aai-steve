@@ -53,7 +53,7 @@ pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_doc
 texts = shopify_documents + pdf_texts  # Directly append Shopify descriptions to texts
 
 print("Texts after splitting: ", len(texts))  # Debugging
-print("First 5 texts: ", texts[:5])  # Print first 5 texts to check
+print("First 5 texts: ", texts[:50])  # Print first 5 texts to check
 
 embeddings = OpenAIEmbeddings()
 vectordb = Chroma.from_documents(documents=[Document(text) for text in texts], 
