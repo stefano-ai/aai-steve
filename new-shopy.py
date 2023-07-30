@@ -30,24 +30,9 @@ def get_shopify_products():
     headers = {
         "X-Shopify-Access-Token": "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"
     }
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raises a HTTPError if the response status isn't 200
-    except requests.exceptions.HTTPError as errh:
-        print ("HTTP Error:",errh)
-        return []
-    except requests.exceptions.ConnectionError as errc:
-        print ("Error Connecting:",errc)
-        return []
-    except requests.exceptions.Timeout as errt:
-        print ("Timeout Error:",errt)
-        return []
-    except requests.exceptions.RequestException as err:
-        print ("Something went wrong",err)
-        return []
-      
+    response = requests.get(url, headers=headers)
     products = response.json().get('products', [])
-    print("Fetched products from Shopify: ", len(products))  
+    print("Fetched products from Shopify: ", len(products))  # Debugging
     return [f'{product["title"]} {product["body_html"]}' for product in products]
 
 shopify_documents.extend(get_shopify_products())
@@ -68,6 +53,7 @@ pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_doc
 texts = shopify_documents + pdf_texts  # Directly append Shopify descriptions to texts
 
 print("Texts after splitting: ", len(texts))  # Debugging
+print("First 5 texts: ", texts[:5])  # Print first 5 texts to check
 
 embeddings = OpenAIEmbeddings()
 vectordb = Chroma.from_documents(documents=[Document(text) for text in texts], 
@@ -109,4 +95,4 @@ def query():
 
 if __name__ == '__main__':
     print("Starting Flask application")  # Debugging
-    app.run(host='0.0.0.0', port=8080)  
+    app.run(host='0.0.0.0', port=8080)  #
