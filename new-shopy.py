@@ -54,9 +54,10 @@ def get_shopify_products():
 
     print("Fetched products from Shopify: ", len(products))
     return [
-    f'{product["title"]} {product["body_html"]} {product["product_type"]} {", ".join(product["tags"].split(", "))} {", ".join([variant["option1"] for variant in product["variants"]])} {product["variants"][0]["price"]}'
+    f'{product["title"]} {product["body_html"]} {product["product_type"]} {", ".join(product["tags"].split(", "))} {", ".join([variant["option1"] for variant in product["variants"]])} {product["variants"][0]["price"]} {"In stock" if product["variants"][0]["inventory_quantity"] > 0 else "Out of stock"}'
     for product in products
 ]
+
 shopify_documents.extend(get_shopify_products())
 print("Documents after adding Shopify products: ", len(shopify_documents))
 
