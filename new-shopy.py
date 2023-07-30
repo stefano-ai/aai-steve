@@ -71,7 +71,7 @@ for filename in os.listdir(pdf_directory):
 
 print("Total documents: ", len(shopify_documents) + len(pdf_documents))
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=10)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=10)
 pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_documents)]
 texts = shopify_documents + pdf_texts
 
