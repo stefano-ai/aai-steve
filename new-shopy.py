@@ -7,7 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 
-from concurrent.futures import Lock
+from threading import Lock
 
 app = Flask(__name__)
 
@@ -89,6 +89,7 @@ def query():
         # Add the model's response to the user's context
         user_context.append(llm_response["result"])
         
+        # Update the user's context
         # Update the user's context in the dictionary
         with context_lock:
             context_dict[user_id] = user_context
