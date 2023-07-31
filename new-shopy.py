@@ -95,11 +95,4 @@ def query():
         return {
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
-        }, 500
-
-def identify_user_intent(user_input):
-    # TODO: Implement this function to identify the user intent
-    return "unknown"
-if __name__ == '__main__':
-    print("Starting Flask application")
-    app.run(host='0.0.0.0', port=8080)
+        }, 
