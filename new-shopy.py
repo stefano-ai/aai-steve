@@ -1,5 +1,4 @@
 import os
-import requests
 from flask import Flask, request
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -49,23 +48,40 @@ llm = ChatOpenAI(model_name='gpt-4-0613', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
+# Create a dictionary to store the conversation context for each user
+context_dict = {}
+
 @app.route('/query', methods=['GET'])
 def query():
     user_input = request.args.get('input', None)
+    user_id = request.args.get('userid', None) # You should get a unique identifier for each user
     print(f"User input: {user_input}")
     
-    if user_input is None:
+    if user_input is None or user_id is None:
         return {
             'status': 'error',
-            'message': 'No input provided'
+            'message': 'No input or userid provided'
         }, 400
 
-    query = f"###Prompt {user_input}"
+    # Retrieve the user's context if it exists, otherwise create a new context
+    user_context = context_dict.get(user_id, [])
+
+    # Add the new input to the user's context
+    user_context.append(user_input)
+
+    query = f"###Prompt {' '.join(user_context)}"
     print(f"Query: {query}")
     
     try:
         llm_response = qa(query)
         print(f"LLM response: {llm_response}")
+
+        # Add the model's response to the user's context
+        user_context.append(llm_response["result"])
+        
+        # Update the user's context in the dictionary
+        context_dict[user_id] = user_context
+        
         return {
             'status': 'success',
             'response': llm_response["result"]
