@@ -46,7 +46,7 @@ vectordb = Chroma.from_documents(documents=[Document(text) for text in pdf_texts
 vectordb.persist()
 
 retriever = vectordb.as_retriever(search_kwargs={"k": 3})  # Returns the top 10 most similar documents
-llm = ChatOpenAI(model_name='gpt-4-0613', temperature=1, max_tokens=1000)
+llm = ChatOpenAI(model_name='gpt-3.5-turbo-16k', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
