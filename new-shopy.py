@@ -57,7 +57,6 @@ def combine_documents(documents):
 
 @app.route('/query', methods=['GET'])
 def query():
-ef query():
     user_input = request.args.get('input', None)
     user_id = request.args.get('userid', None) # You should get a unique identifier for each user
     print(f"User input: {user_input}")
