@@ -51,6 +51,10 @@ qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retrieve
 # Create a dictionary to store the conversation context for each user
 context_dict = {}
 
+def combine_documents(documents):
+    """Combines a list of documents into a single string."""
+    return " ".join([document.page_content for document in documents])
+
 @app.route('/query', methods=['GET'])
 def query():
     user_input = request.args.get('input', None)
@@ -77,7 +81,6 @@ def query():
         relevant_documents = retriever.get(query)
         
         # Pass the relevant documents to the LLM model
-        # You'll need to figure out how to combine the relevant documents into a format the LLM model can use
         llm_input = combine_documents(relevant_documents)
 
         llm_response = llm(llm_input)
