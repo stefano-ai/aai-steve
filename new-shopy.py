@@ -74,7 +74,7 @@ def query():
     
     try:
         # Use the retriever to find the most relevant documents
-        relevant_documents = retriever.query(query)
+        relevant_documents = retriever.get(query)
         
         # Pass the relevant documents to the LLM model
         # You'll need to figure out how to combine the relevant documents into a format the LLM model can use
