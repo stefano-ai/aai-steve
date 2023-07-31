@@ -43,7 +43,7 @@ vectordb = Chroma.from_documents(documents=[Document(text) for text in pdf_texts
                                  persist_directory=persist_directory)
 vectordb.persist()
 
-retriever = vectordb.as_retriever(search_kwargs={"k": 5})  # Returns the top 10 most similar documents
+retriever = vectordb.search(query, top_k=5)  # Returns the top 10 most similar documents
 llm = ChatOpenAI(model_name='gpt-4-0613', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
@@ -51,11 +51,6 @@ qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retrieve
 # Create a dictionary to store the conversation context for each user
 context_dict = {}
 
-def combine_documents(documents):
-    """Combines a list of documents into a single string."""
-    return " ".join([document.page_content for document in documents])
-
-@app.route('/query', methods=['GET'])
 def query():
     user_input = request.args.get('input', None)
     user_id = request.args.get('userid', None) # You should get a unique identifier for each user
@@ -78,7 +73,7 @@ def query():
     
     try:
         # Use the retriever to find the most relevant documents
-        relevant_documents = retriever.retrieve(query, top_k=5)
+        relevant_documents = retriever.search(query, top_k=5)
         
         # Pass the relevant documents to the LLM model
         llm_input = combine_documents(relevant_documents)
