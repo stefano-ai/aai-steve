@@ -43,7 +43,7 @@ vectordb = Chroma.from_documents(documents=[Document(text) for text in pdf_texts
                                  persist_directory=persist_directory)
 vectordb.persist()
 
-retriever = vectordb.search(query, top_k=5)  # Returns the top 10 most similar documents
+retriever = vectordb.as_retriever(search_kwargs={"k": 5})  # Returns the top 10 most similar documents
 llm = ChatOpenAI(model_name='gpt-4-0613', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
@@ -51,6 +51,7 @@ qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retrieve
 # Create a dictionary to store the conversation context for each user
 context_dict = {}
 
+@app.route('/query', methods=['GET'])
 def query():
     user_input = request.args.get('input', None)
     user_id = request.args.get('userid', None) # You should get a unique identifier for each user
@@ -62,24 +63,17 @@ def query():
             'message': 'No input or userid provided'
         }, 400
 
-    # Define the query variable
-    query = f"###Prompt {' '.join(user_context)}"
-    
     # Retrieve the user's context if it exists, otherwise create a new context
     user_context = context_dict.get(user_id, [])
 
     # Add the new input to the user's context
     user_context.append(user_input)
 
+    query = f"###Prompt {' '.join(user_context)}"
+    print(f"Query: {query}")
     
     try:
-        # Use the retriever to find the most relevant documents
-        relevant_documents = retriever.search(query, top_k=5)
-        
-        # Pass the relevant documents to the LLM model
-        llm_input = combine_documents(relevant_documents)
-
-        llm_response = llm(llm_input)
+        llm_response = qa(query)
         print(f"LLM response: {llm_response}")
 
         # Add the model's response to the user's context
@@ -98,9 +92,6 @@ def query():
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
         }, 500
-
-
-
 
 if __name__ == '__main__':
     print("Starting Flask application")
