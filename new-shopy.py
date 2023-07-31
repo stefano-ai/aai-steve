@@ -73,7 +73,14 @@ def query():
     print(f"Query: {query}")
     
     try:
-        llm_response = qa(query)
+        # Use the retriever to find the most relevant documents
+        relevant_documents = retriever(query)
+        
+        # Pass the relevant documents to the LLM model
+        # You'll need to figure out how to combine the relevant documents into a format the LLM model can use
+        llm_input = combine_documents(relevant_documents)
+
+        llm_response = llm(llm_input)
         print(f"LLM response: {llm_response}")
 
         # Add the model's response to the user's context
