@@ -57,6 +57,7 @@ def combine_documents(documents):
 
 @app.route('/query', methods=['GET'])
 def query():
+ef query():
     user_input = request.args.get('input', None)
     user_id = request.args.get('userid', None) # You should get a unique identifier for each user
     print(f"User input: {user_input}")
@@ -78,7 +79,7 @@ def query():
     
     try:
         # Use the retriever to find the most relevant documents
-        relevant_documents = retriever.get(query)
+        relevant_documents = retriever.search(query, top_k=5)
         
         # Pass the relevant documents to the LLM model
         llm_input = combine_documents(relevant_documents)
@@ -102,6 +103,7 @@ def query():
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
         }, 500
+
 
 if __name__ == '__main__':
     print("Starting Flask application")
