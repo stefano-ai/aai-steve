@@ -62,14 +62,15 @@ def query():
             'message': 'No input or userid provided'
         }, 400
 
+    # Define the query variable
+    query = f"###Prompt {' '.join(user_context)}"
+    
     # Retrieve the user's context if it exists, otherwise create a new context
     user_context = context_dict.get(user_id, [])
 
     # Add the new input to the user's context
     user_context.append(user_input)
 
-    query = f"###Prompt {' '.join(user_context)}"
-    print(f"Query: {query}")
     
     try:
         # Use the retriever to find the most relevant documents
@@ -97,6 +98,7 @@ def query():
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
         }, 500
+
 
 
 
