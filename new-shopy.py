@@ -78,7 +78,7 @@ def query():
     
     try:
         # Use the retriever to find the most relevant documents
-        relevant_documents = retriever.search(query, top_k=5)
+        relevant_documents = retriever.retrieve(query, top_k=5)
         
         # Pass the relevant documents to the LLM model
         llm_input = combine_documents(relevant_documents)
@@ -102,6 +102,7 @@ def query():
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
         }, 500
+
 
 
 if __name__ == '__main__':
