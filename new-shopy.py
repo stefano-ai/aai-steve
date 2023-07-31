@@ -1,6 +1,5 @@
 import os
 import requests
-import langchain
 from flask import Flask, request
 from langchain.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -16,50 +15,12 @@ api_key = os.getenv('OPENAI_API_KEY')
 persist_directory = "./storage"
 pdf_directory = "pdfs/"
 
-shopify_documents = []
 pdf_documents = []
 
 class Document:
     def __init__(self, page_content, metadata={}):
         self.page_content = page_content
         self.metadata = metadata
-
-def get_shopify_products():
-    url = "https://nuvitababy-com.myshopify.com/admin/api/2023-07/products.json"
-    headers = {
-        "X-Shopify-Access-Token": "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"
-    }
-    page_info = None
-    products = []
-    
-    while True:
-        params = {"limit": 250}  # Get maximum number of products per request
-        if page_info:
-            params["page_info"] = page_info
-
-        response = requests.get(url, headers=headers, params=params)
-        data = response.json()
-        products.extend(data.get('products', []))
-        
-        link_header = response.headers.get("Link")
-        if link_header:
-            links = link_header.split(", ")
-            next_link = [link for link in links if "rel=\"next\"" in link]
-            if next_link:
-                page_info = next_link[0].split("; ")[0].strip("<>").split("page_info=")[1]
-            else:
-                break
-        else:
-            break
-
-    print("Fetched products from Shopify: ", len(products))
-    return [
-    f'{product["title"]} {product["body_html"]} {product["product_type"]} {", ".join(product["tags"].split(", "))} {", ".join([variant["option1"] for variant in product["variants"]])} {product["variants"][0]["price"]} {"In stock" if product["variants"][0]["inventory_quantity"] > 0 else "Out of stock"}'
-    for product in products
-]
-
-shopify_documents.extend(get_shopify_products())
-print("Documents after adding Shopify products: ", len(shopify_documents))
 
 for filename in os.listdir(pdf_directory):
     if filename.endswith(".pdf"):
@@ -69,23 +30,22 @@ for filename in os.listdir(pdf_directory):
         pdf_documents.extend(document)
         print(f"Added document: {filename}")
 
-print("Total documents: ", len(shopify_documents) + len(pdf_documents))
+print("Total documents: ", len(pdf_documents))
 
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=10)
 pdf_texts = [text.page_content for text in text_splitter.split_documents(pdf_documents)]
-texts = shopify_documents + pdf_texts
 
-print("Texts after splitting: ", len(texts))
-print("First 5 texts: ", texts[:180])
+print("Texts after splitting: ", len(pdf_texts))
+print("First 5 texts: ", pdf_texts[:5])
 
 embeddings = OpenAIEmbeddings()
-vectordb = Chroma.from_documents(documents=[Document(text) for text in texts], 
+vectordb = Chroma.from_documents(documents=[Document(text) for text in pdf_texts], 
                                  embedding=embeddings,
                                  persist_directory=persist_directory)
 vectordb.persist()
 
-retriever = vectordb.as_retriever(search_kwargs={"k": 10})  # Restituisce i primi 10 documenti più simili
-llm = ChatOpenAI(model_name='gpt-4', temperature=1, max_tokens=2000)
+retriever = vectordb.as_retriever(search_kwargs={"k": 10})  # Returns the top 10 most similar documents
+llm = ChatOpenAI(model_name='gpt-4-0613', temperature=1, max_tokens=1000)
 
 qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
 
