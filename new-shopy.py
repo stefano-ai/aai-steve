@@ -7,6 +7,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 
+from concurrent.futures import Lock
+
 app = Flask(__name__)
 
 api_key = os.getenv('OPENAI_API_KEY')
@@ -51,6 +53,9 @@ qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retrieve
 # Create a dictionary to store the conversation context for each user
 context_dict = {}
 
+# Create a lock to protect the conversation context
+context_lock = Lock()
+
 @app.route('/query', methods=['GET'])
 def query():
     user_input = request.args.get('input', None)
@@ -64,7 +69,8 @@ def query():
         }, 400
 
     # Retrieve the user's context if it exists, otherwise create a new context
-    user_context = context_dict.get(user_id, [])
+    with context_lock:
+        user_context = context_dict.get(user_id, [])
 
     # Add the new input to the user's context
     user_context.append(user_input)
@@ -84,7 +90,8 @@ def query():
         user_context.append(llm_response["result"])
         
         # Update the user's context in the dictionary
-        context_dict[user_id] = user_context
+        with context_lock:
+            context_dict[user_id] = user_context
         
         return {
             'status': 'success',
@@ -95,4 +102,11 @@ def query():
         return {
             'status': 'error',
             'message': f'Exception occurred: {str(err)}'
-        }, 
+        }, 500
+
+def identify_user_intent(user_input):
+    # TODO: Implement this function to identify the user intent
+    return "unknown"
+if __name__ == '__main__':
+    print("Starting Flask application")
+    app.run(host='0.0.0.0', port=8080)
