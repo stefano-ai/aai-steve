@@ -75,7 +75,7 @@ def query():
     # Add the new input to the user's context
     user_context.append(user_input)
 
-    query = f"###Prompt {' '.join(user_context)}"
+    query = f"###System: Sei un agente del servizio clienti su Nuvitababy.com, se non conosci la risposta, suggerisci ai clienti di andare sulla pagina di supporto del sito web per inviare una richiesta al supporto clienti.###Prompt: {' '.join(user_context)}"
     print(f"Query: {query}")
 
     # Identify the user intent
