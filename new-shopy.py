@@ -71,7 +71,11 @@ def query():
 
     query = f"###Prompt {' '.join(user_context)}"
     print(f"Query: {query}")
-    
+
+    # Identify the user intent
+    user_intent = identify_user_intent(user_input)
+    print(f"User intent: {user_intent}")
+
     try:
         llm_response = qa(query)
         print(f"LLM response: {llm_response}")
@@ -93,6 +97,9 @@ def query():
             'message': f'Exception occurred: {str(err)}'
         }, 500
 
+def identify_user_intent(user_input):
+    # TODO: Implement this function to identify the user intent
+    return "unknown"
 if __name__ == '__main__':
     print("Starting Flask application")
     app.run(host='0.0.0.0', port=8080)
